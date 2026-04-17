@@ -1,0 +1,39 @@
+{
+  "repoType": "feature-monorepo",
+  "repoName": "HORIZON-path-myteam",
+  "toolkitPath": "~/HORIZON-aide-toolkit",
+  "persona": "personas/frontend.md",
+  "stackRules": "rules/stack-ui.md",
+  "workspaces": [
+    {
+      "name": "associate",
+      "path": "ui/associate/src",
+      "type": "ui",
+      "packageType": "app"
+    },
+    {
+      "name": "home",
+      "path": "ui/home/src",
+      "type": "ui",
+      "packageType": "app"
+    },
+    {
+      "name": "shared",
+      "path": "ui/shared",
+      "type": "shared",
+      "packageType": "services"
+    },
+    {
+      "name": "bff",
+      "path": "api/src",
+      "type": "api",
+      "packageType": "api"
+    }
+  ],
+  "produces": ["specs/architecture.md"],
+  "crossReference": {
+    "repo": "HORIZON-pme-calibration-api",
+    "path": "../HORIZON-pme-calibration-api/specs/openapi.yaml"
+  },
+  "outputPath": "specs"
+}

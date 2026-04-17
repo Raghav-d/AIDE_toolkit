@@ -1,0 +1,20 @@
+{
+  "repoType": "backend-api",
+  "repoName": "HORIZON-pme-calibration-api",
+  "toolkitPath": "~/HORIZON-aide-toolkit",
+  "persona": "personas/backend.md",
+  "stackRules": "rules/stack-api.md",
+  "sourceRoot": "src",
+  "findPatterns": {
+    "routes": "src/routes",
+    "models": "src/database/models",
+    "daos": "src/dao",
+    "services": "src/services",
+    "schemas": "src/schema",
+    "sql": "src/database/sql",
+    "types": "src/types"
+  },
+  "produces": ["specs/architecture.md", "specs/openapi.yaml"],
+  "crossReference": null,
+  "outputPath": "specs"
+}

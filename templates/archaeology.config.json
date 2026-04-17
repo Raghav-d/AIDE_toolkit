@@ -1,0 +1,57 @@
+{
+  "_comment": "Copy this file to .claude/archaeology.config.json in your repo and edit for your project",
+  "_docs": "See HORIZON-aide-toolkit/standards/aide-standard.md for full reference",
+
+  "repoType": "backend-api",
+  "repoName": "HORIZON-my-repo",
+  "toolkitPath": "~/HORIZON-aide-toolkit",
+  "persona": "personas/backend.md",
+  "stackRules": "rules/stack-api.md",
+  "outputPath": "specs",
+
+  "_backend_api_only": {
+    "sourceRoot": "src",
+    "findPatterns": {
+      "routes": "src/routes",
+      "models": "src/database/models",
+      "daos": "src/dao",
+      "services": "src/services",
+      "schemas": "src/schema",
+      "sql": "src/database/sql",
+      "types": "src/types"
+    },
+    "produces": ["architecture.md", "openapi.yaml"],
+    "crossReference": null
+  },
+
+  "_feature_monorepo_only": {
+    "repoType": "feature-monorepo",
+    "persona": "personas/frontend.md",
+    "stackRules": "rules/stack-ui.md",
+    "workspaces": [
+      {
+        "name": "workspace-name",
+        "path": "ui/workspace-name/src",
+        "type": "ui",
+        "packageType": "app"
+      },
+      {
+        "name": "shared",
+        "path": "ui/shared",
+        "type": "shared",
+        "packageType": "services"
+      },
+      {
+        "name": "bff",
+        "path": "api/src",
+        "type": "api",
+        "packageType": "api"
+      }
+    ],
+    "produces": ["architecture.md"],
+    "crossReference": {
+      "repo": "HORIZON-my-feature-api",
+      "path": "../HORIZON-my-feature-api/specs/openapi.yaml"
+    }
+  }
+}

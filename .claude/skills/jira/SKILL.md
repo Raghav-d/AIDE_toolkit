@@ -52,24 +52,20 @@ Re-run setup to reinstall the skills."
 ## Step 3 — Fetch the ticket
 
 Parse $ARGUMENTS:
-- Issue key = first token (e.g. PROJ-123)
+- Issue key = first token (e.g. HRTP-8050)
 - --out = custom output path if provided, otherwise use specs/jira-ticket.json
 
 Ensure specs/ directory exists:
 
-```
 !`mkdir -p specs`
-```
 
-Run the fetch:
+Now run the fetch script using the actual issue key from $ARGUMENTS.
+Do NOT use a bash block for this — run it as a Bash tool call directly,
+substituting the real issue key value:
 
-```
-!`python3 .claude/skills/jira/get_ticket.py $ARGUMENTS --out specs/jira-ticket.json`
-```
+python3 .claude/skills/jira/get_ticket.py [ACTUAL_ISSUE_KEY] --out specs/jira-ticket.json
 
-Replace ISSUE_KEY with the actual value from $ARGUMENTS.
-
-If the script exits with an error, print the error message and stop.
+If the script exits non-zero, print the stderr output and stop.
 
 ## Step 4 — Confirm output
 

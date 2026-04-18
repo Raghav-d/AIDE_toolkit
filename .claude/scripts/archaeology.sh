@@ -76,6 +76,13 @@ for skill in sdd-generate sdd-modify sdd-verify sdd-mock sdd-spec; do
   fi
 done
 
+# ── Install commands ──────────────────────────────────────────────────────────
+mkdir -p "$REPO_DIR/.claude/commands"
+if [ -d "$TOOLKIT_PATH/commands" ]; then
+  cp "$TOOLKIT_PATH/commands/"*.md "$REPO_DIR/.claude/commands/"
+  echo "  ✓ commands ($(ls $TOOLKIT_PATH/commands/*.md | wc -l | tr -d ' ') slash commands)"
+fi
+
 # ── Install rules ─────────────────────────────────────────────────────────────
 mkdir -p "$REPO_DIR/.claude/rules"
 if [ -f "$TOOLKIT_PATH/$STACK_RULES" ]; then

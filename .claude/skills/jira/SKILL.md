@@ -64,7 +64,7 @@ Ensure specs/ directory exists:
 Run the fetch:
 
 ```
-!`python3 .claude/skills/jira/get_ticket.py ISSUE_KEY --out specs/jira-ticket.json`
+!`python3 .claude/skills/jira/get_ticket.py $ARGUMENTS --out specs/jira-ticket.json`
 ```
 
 Replace ISSUE_KEY with the actual value from $ARGUMENTS.

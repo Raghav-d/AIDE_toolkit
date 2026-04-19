@@ -76,13 +76,6 @@ for skill in sdd-generate sdd-modify sdd-verify sdd-mock sdd-spec; do
   fi
 done
 
-# ── Install commands ──────────────────────────────────────────────────────────
-mkdir -p "$REPO_DIR/.claude/commands"
-if [ -d "$TOOLKIT_PATH/commands" ]; then
-  cp "$TOOLKIT_PATH/commands/"*.md "$REPO_DIR/.claude/commands/"
-  echo "  ✓ commands ($(ls $TOOLKIT_PATH/commands/*.md | wc -l | tr -d ' ') slash commands)"
-fi
-
 # ── Install rules ─────────────────────────────────────────────────────────────
 mkdir -p "$REPO_DIR/.claude/rules"
 if [ -f "$TOOLKIT_PATH/$STACK_RULES" ]; then
@@ -286,6 +279,15 @@ $(echo "$WORKSPACES" | while IFS='|' read name path type; do
   fi
 done)
 
+STEP 3b — Specifically discover all hooks and modals:
+$(echo "$WORKSPACES" | while IFS='|' read name path type; do
+  if [ "$type" = "ui" ] || [ "$type" = "shared" ]; do
+    echo "![\`find $path -name 'index.ts' -path '*/hooks/*' -not -path '*/node_modules/*' | sort\`]"
+    echo "![\`find $path -name 'index.tsx' -path '*/modal*' -not -path '*/node_modules/*' | sort\`]"
+    echo "Read every file returned — these are reusable hooks and modal shells."
+  fi
+done)
+
 STEP 4 — Read BFF API files:
 $(echo "$WORKSPACES" | while IFS='|' read name path type; do
   if [ "$type" = "api" ]; then
@@ -321,6 +323,18 @@ For each workspace: name, path, purpose, what it renders.
 ## Component tree
 | Component | Workspace | File path | Responsibility | Data source | Actions |
 One row per component.
+
+## Custom hooks
+For every hook found under any hooks/ directory:
+| Hook name | Workspace | File path | Purpose | What it wraps |
+One row per hook. This section is critical — ticket writers and sdd-spec
+use this to find existing hooks before writing new ones.
+
+## Modals
+For every modal component found:
+| Modal name | Workspace | File path | Current state (empty shell / partial / complete) | Props accepted |
+One row per modal. Note if the modal is a shell with placeholder content
+vs a fully implemented modal.
 
 ## React Query usage
 | Hook name | Workspace | Query key | Endpoint called | Method | Owner component |

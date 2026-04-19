@@ -39,6 +39,33 @@ If jira-ticket.json is missing, stop and print:
 If architecture.md is missing, stop and print:
 "specs/architecture.md not found. Run archaeology.sh first."
 
+## Step 0b — For UI tickets: read existing code before strengthening
+
+Parse the jira-ticket.json description to find:
+- Any file paths mentioned (target component, related components)
+- Any hook names mentioned (existing hooks to use)
+- Any component names mentioned
+
+If this appears to be a UI ticket (label = UI, or description mentions
+modal/component/button/hook):
+
+Read the target component if specified:
+Use the Read tool to read the file at the path mentioned in the ticket.
+If no path is mentioned, search architecture.md ## Modals section
+to find likely candidates based on component names in the description.
+
+Read related components if specified:
+Use the Read tool to read each file mentioned under "Related components".
+
+Search for existing hooks:
+Check architecture.md ## Custom hooks section for hooks relevant to
+the ticket's domain (e.g. if ticket mentions "show once" or "persist",
+look for hooks that handle localStorage or disabled state).
+
+This step prevents duplicating logic that already exists in the codebase.
+Document what you found:
+"Found existing: [component/hook name] at [path] — will use this, not reimplement."
+
 ## Step 1 — Parse Jira ticket
 
 Jira wiki markup conventions used by Capital One:

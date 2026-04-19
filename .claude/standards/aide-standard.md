@@ -63,12 +63,22 @@ The script walks you through three gates:
 ### Gate 2 — Code
 - Runs `sdd-generate` or `sdd-modify` against affected files
 - **Human reviews generated code**
-- Verification checklist:
-  - [ ] `auth: true` on all new routes (API repos)
-  - [ ] DB transaction present where multiple tables written
-  - [ ] No `any` types in TypeScript
-  - [ ] All ACs from prd.md have corresponding code
-  - [ ] No cross-workspace imports (UI monorepos)
+- Verification checklist — API repos:
+    - [ ] `auth: true` on all new routes
+    - [ ] DB transaction present where multiple tables written
+    - [ ] No `any` types in TypeScript
+    - [ ] All ACs from prd.md have corresponding code
+    - [ ] DAO file generated alongside new service
+- Verification checklist — UI repos:
+    - [ ] No `any` types in TypeScript
+    - [ ] All ACs from prd.md have corresponding code
+    - [ ] No cross-workspace imports
+    - [ ] Existing hooks used — nothing reimplemented that already exists
+    - [ ] Omni/Gravity components used (not custom HTML equivalents)
+    - [ ] Loading state present on all async operations
+    - [ ] Error state present on all async operations
+    - [ ] `aria-label` on all interactive elements
+    - [ ] MSW mock handlers generated if API endpoint is TBD
 
 ### Gate 3 — Tests
 - Run tests against generated code
@@ -81,34 +91,132 @@ The script walks you through three gates:
 ## Jira ticket standards
 
 For AIDE to produce accurate specs, tickets must follow these conventions.
+Incomplete tickets produce incomplete or incorrect code. The ticket writer
+is responsible for providing enough detail that a developer who has never
+seen the codebase can understand what to build.
 
-### Required fields
-- **Summary**: concise feature description
-- **Description**: user story + acceptance criteria
+### Required fields (all tickets)
+
+- **Summary**: concise feature description (one line)
+- **Description**: user story + acceptance criteria (see format below)
 - **Label**: `UI` | `API` | `DB` | `infra`
 - **Linked issues**: UI ticket must link to its API ticket and vice versa
 
 ### Acceptance criteria format
-Write ACs as `*` bullet points in the description:
+
+Write ACs as `*` bullet points. Each AC must be specific and testable.
+One behaviour per AC. Never vague ("the modal should work correctly").
 
 ```
 * When the user clicks X, Y happens
-* The endpoint accepts ownerEid, associateEid, cycleId
-* On success, return 201 with the created record
-* On duplicate (same associateEid + ownerEid + cycleId), return 400
+* The endpoint accepts ownerEid, associateEid, cycleId as required fields
+* On success, return 201 with the created session record
+* On duplicate submission (same key combination), return 409
+* The button remains disabled until the checkbox is checked
 ```
 
 ### Tech notes
+
 Prefix developer notes with `Tech Note -` so AIDE separates them from ACs:
 
 ```
 Tech Note - This endpoint will be called by the GenAI service, not the UI
 Tech Note - Use existing CalibrationService pattern for error handling
+Tech Note - calling Gen AI API endpoints — not required for this story
 ```
 
 ### Figma links
-Paste Figma design URLs directly in the description. AIDE extracts them
-automatically. Use design links not prototype links where possible.
+
+Paste Figma design links directly in the description. AIDE extracts them
+automatically. Always use design links (not prototype links). Always include
+the specific node-id so AIDE fetches the exact frame, not the whole file:
+
+```
+https://www.figma.com/design/FILE_KEY/Title?node-id=55836-9551
+```
+
+---
+
+## Additional requirements for UI tickets
+
+UI tickets require more context than API tickets because the codebase has
+existing components and hooks that must be reused — not duplicated.
+A new developer running AIDE must be able to find all relevant files
+from the ticket alone, without reading the whole codebase.
+
+### Target component (required)
+
+The exact file path of the component to modify or create:
+
+```
+Target component: ui/associate/src/modals/pathAiAssistantModal/index.tsx
+```
+
+If creating a new component, specify the intended path and name.
+
+### Related components (required if applicable)
+
+Other files that need updating alongside the target — parent components
+that own state, sibling components that receive new props:
+
+```
+Related components:
+- ui/associate/src/components/common/pathAiAssistantButton/index.tsx
+  (CTA that triggers modal — needs new props passed down)
+- ui/associate/src/components/calibrationTemplate/strengthDevelopment/index.tsx
+  (parent that owns modal open state — needs prop additions)
+```
+
+### Existing hooks to use (required if applicable)
+
+Hooks that already solve part of the problem. AIDE must use these —
+never reimplement logic that already exists:
+
+```
+Existing hooks:
+- usePersistedDisabledModalButton — handles localStorage show-once logic
+```
+
+If you are not sure what hooks exist, ask the tech lead before writing the ticket.
+
+### API contract (required)
+
+Specify endpoint, method, request body, response shape, and error codes.
+If the endpoint is not ready, say so explicitly and name the owner:
+
+```
+API contract:
+POST /pme/my-team/api/acknowledge
+Request: { cycle_id, ppl_eid, associate_eid, competency_code, competency_kind }
+Response: { llm_session_id: string }
+Errors: 201 Created | 409 Conflict (already acknowledged) | 500
+Note: endpoint TBD — use MSW mock. Owner: Kishan Ramoliya
+```
+
+### Show-once / persistence behaviour (required if applicable)
+
+If a UI element should only show once, specify the persistence strategy:
+
+```
+Show-once behaviour:
+localStorage key: path_ai_ack_{cycle_id}_{ppl_eid}_{associate_eid}_{competency_code}_{competency_kind}
+Resets: never
+Existing hook handles this: usePersistedDisabledModalButton
+```
+
+### Dismiss / cancel behaviour (required if applicable)
+
+What happens when the user dismisses without completing the action:
+
+```
+Cancel behaviour: closes modal only, no API call, modal shows again on next click
+```
+
+Or if an API call is needed:
+
+```
+Cancel behaviour: PUT /endpoint to set status to cancelled, then close modal
+```
 
 ---
 

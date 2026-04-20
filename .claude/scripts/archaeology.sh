@@ -281,10 +281,25 @@ done)
 
 STEP 3b — Specifically discover all hooks and modals:
 $(echo "$WORKSPACES" | while IFS='|' read name path type; do
-  if [ "$type" = "ui" ] || [ "$type" = "shared" ]; do
+  if [ "$type" = "ui" ] || [ "$type" = "shared" ]; then
+    echo "Workspace: $name — hooks and modals"
     echo "![\`find $path -name 'index.ts' -path '*/hooks/*' -not -path '*/node_modules/*' | sort\`]"
+    echo "![\`find $path -name 'index.tsx' -path '*/hooks/*' -not -path '*/node_modules/*' | sort\`]"
     echo "![\`find $path -name 'index.tsx' -path '*/modal*' -not -path '*/node_modules/*' | sort\`]"
-    echo "Read every file returned — these are reusable hooks and modal shells."
+    echo "![\`find $path -name 'index.tsx' -path '*/modals/*' -not -path '*/node_modules/*' | sort\`]"
+    echo "Read every file returned — hooks and modal shells."
+  fi
+done)
+
+STEP 3c — Read all type definitions and constants:
+$(echo "$WORKSPACES" | while IFS='|' read name path type; do
+  if [ "$type" = "ui" ] || [ "$type" = "shared" ]; then
+    echo "Workspace: $name — types and constants"
+    echo "![\`find $path -name '*.ts' -path '*/types/*' -not -path '*/node_modules/*' | sort\`]"
+    echo "![\`find $path -name '*.ts' -path '*/constants/*' -not -path '*/node_modules/*' | sort\`]"
+    echo "![\`find $path -name '*.tsx' -path '*/constants/*' -not -path '*/node_modules/*' | sort\`]"
+    echo "Read every file returned — these provide TypeScript interfaces and enum values."
+    echo "This section is critical for sdd-spec to resolve type questions without NEEDS HUMAN INPUT."
   fi
 done)
 
@@ -329,6 +344,17 @@ For every hook found under any hooks/ directory:
 | Hook name | Workspace | File path | Purpose | What it wraps |
 One row per hook. This section is critical — ticket writers and sdd-spec
 use this to find existing hooks before writing new ones.
+
+## Types and constants
+For every TypeScript interface and type found in types/ directories:
+| Type name | Workspace | File path | Fields | Used by |
+One row per type.
+
+For every constant or enum found in constants/ directories:
+| Constant name | Workspace | File path | Values | Purpose |
+One row per constant. String literal unions and enums are especially
+important — sdd-spec uses these to resolve competency_kind, status codes,
+permission strings etc. without requiring NEEDS HUMAN INPUT.
 
 ## Modals
 For every modal component found:
